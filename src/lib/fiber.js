@@ -6,7 +6,7 @@ export class Fiber {
   child = null
   sibling = null
 
-  dom = false
+  dom = null 
 
   constructor(elem, parent) {
     this.type = elem.type;

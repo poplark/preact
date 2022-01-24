@@ -1,10 +1,16 @@
 import { Fiber} from './fiber';
-let nextUnitOfWork = null;
+import { createDOM } from './createDOM';
 
-function workLoop(deadline) {
+export let nextUnitOfWork = null;
+
+export function setNextUnitOfWork(fiber) {
+  nextUnitOfWork = fiber;
+}
+
+export function workLoop(deadline) {
   let shouldYield = false;
   while(nextUnitOfWork && !shouldYield) {
-    nextUnitOfWork = performWork(nextUnitOfWork);
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
 
     if (deadline.timeRemain < 1) {
       shouldYield = true;
@@ -12,8 +18,6 @@ function workLoop(deadline) {
   }
   requestIdleCallback(workLoop);
 }
-
-requestIdleCallback(workLoop);
 
 /**
  * 
@@ -24,24 +28,21 @@ requestIdleCallback(workLoop);
  * 3. select the next unit of work
  */
 function performUnitOfWork(fiber) {
-
   // 1. 将 Element 添加到 DOM 结点
-  // 需要判断 dom 存在?
-  // if (!fiber.dom) {
-  fiber.dom = createDOM(fiber);
-  // }
+  if (!fiber.dom) {
+    fiber.dom = createDOM(fiber);
+  }
 
-  // 需要判断 parent 存在?
-  // if (fiber.parent) {
-  fiber.parent.dom.appendChild(fiber.dom);
-  // }
+  if (fiber.parent) {
+    fiber.parent.dom.appendChild(fiber.dom);
+  }
 
   // 2. 给 Child Element 创建 Fiber 结点
   const children = fiber.props.children;
   let index = 0
   let prevSibling = null
   while (index < children.length) {
-    const _fiber = new Fiber(children[i], fiber);
+    const _fiber = new Fiber(children[index], fiber);
     if (index === 0) {
       fiber.children = _fiber;
     } else {
