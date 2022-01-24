@@ -15,12 +15,10 @@ export function setWIPRoot(fiber) {
 }
 
 function commitRoot() {
-  deletions.forEach((fiber) => {
-    fiber.parent.dom.removeChild(fiber.dom);
-  });
-  deletions = [];
+  deletions.forEach(commitWork);
   commitWork(wipRoot.child);
   currentRoot = wipRoot;
+  deletions = [];
   wipRoot = null;
 }
 
@@ -51,7 +49,7 @@ function commitWork(fiber) {
       commitWork(fiber.sibling);
       break;
     case 'DELETE':
-      // 不会有 delete 的，统一处理 deletions 数组中的
+      fiber.parent.dom.removeChild(fiber.dom);
       break;
     default:
       break;
