@@ -5,15 +5,15 @@ export function render(elem, container) {
   } else {
     node = document.createElement(elem.type);
   }
-  const keys = Object.keys(elem.props);
-  for(let key of keys) {
-    if (key !== 'children') {
+  const isProperty = key => key !== "children"
+  Object.keys(elem.props)
+    .filter(isProperty)
+    .forEach((key) => {
       node[key] = elem.props[key];
-    }
-  }
-  elem.node = node;
+    });
   elem.props.children.forEach((child) => {
-    render(child, elem.node);
+    render(child, node);
   });
+  elem.node = node;
   container.appendChild(elem.node);
 }
