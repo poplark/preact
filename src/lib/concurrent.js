@@ -1,3 +1,4 @@
+import { Fiber} from './fiber';
 let nextUnitOfWork = null;
 
 function workLoop(deadline) {
@@ -22,18 +23,45 @@ requestIdleCallback(workLoop);
  * 2. create the fibers for the element’s children
  * 3. select the next unit of work
  */
-function performUnitOfWork(nextUnitOfWork) {
-  if (nextUnitOfWork.done) {
-    return nextUnitOfWork.sibling
-      ? nextUnitOfWork.sibling
-      : nextUnitOfWork.parent;
+function performUnitOfWork(fiber) {
+
+  // 1. 将 Element 添加到 DOM 结点
+  // 需要判断 dom 存在?
+  // if (!fiber.dom) {
+  fiber.dom = createDOM(fiber);
+  // }
+
+  // 需要判断 parent 存在?
+  // if (fiber.parent) {
+  fiber.parent.dom.appendChild(fiber.dom);
+  // }
+
+  // 2. 给 Child Element 创建 Fiber 结点
+  const children = fiber.props.children;
+  let index = 0
+  let prevSibling = null
+  while (index < children.length) {
+    const _fiber = new Fiber(children[i], fiber);
+    if (index === 0) {
+      fiber.children = _fiber;
+    } else {
+      prevSibling.sibling = _fiber;
+    }
+    prevSibling = _fiber;
+    index ++;
   }
 
-  // todo - perform node
+  // 3. 找出下一个 work unit
+  if (fiber.child) {
+    return fiber.child;
+  }
 
-  return nextUnitOfWork.child
-    ? nextUnitOfWork.child
-    : nextUnitOfWork.sibling
-      ? nextUnitOfWork.sibling
-      : nextUnitOfWork.parent
+  let nextFiber = fiber;
+
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling;
+    }
+    nextFiber = nextFiber.parent;
+  }
 }

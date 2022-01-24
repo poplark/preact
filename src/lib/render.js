@@ -1,4 +1,5 @@
-export function render(elem, container) {
+function createDOM(fiber) {
+  /*
   let node;
   if (elem.type === 'TEXT_ELEMENT') {
     node = document.createTextNode('');
@@ -16,4 +17,14 @@ export function render(elem, container) {
   });
   elem.node = node;
   container.appendChild(elem.node);
+  */
+}
+
+export function render(elem, container) {
+  nextUnitOfWork = {
+    dom: container,
+    props: {
+      children: [elem],
+    },
+  }
 }
