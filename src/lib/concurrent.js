@@ -1,10 +1,27 @@
 import { Fiber} from './fiber';
 import { createDOM } from './createDOM';
 
+let wipRoot = null;
 export let nextUnitOfWork = null;
 
 export function setNextUnitOfWork(fiber) {
   nextUnitOfWork = fiber;
+}
+
+export function setWIPRoot(fiber) {
+  wipRoot = fiber;
+}
+
+function commitRoot() {
+  commitWork(wipRoot.child);
+  wipRoot = null;
+}
+
+function commitWork(fiber) {
+  if (!fiber) return;
+  fiber.parent.dom.appendChild(fiber.dom);
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
 }
 
 export function workLoop(deadline) {
@@ -14,6 +31,10 @@ export function workLoop(deadline) {
 
     if (deadline.timeRemaining() < 1) {
       shouldYield = true;
+    }
+
+    if (!nextUnitOfWork && wipRoot) {
+      commitRoot();
     }
   }
   requestIdleCallback(workLoop);
@@ -31,10 +52,6 @@ function performUnitOfWork(fiber) {
   // 1. 将 Element 添加到 DOM 结点
   if (!fiber.dom) {
     fiber.dom = createDOM(fiber);
-  }
-
-  if (fiber.parent) {
-    fiber.parent.dom.appendChild(fiber.dom);
   }
 
   // 2. 给 Child Element 创建 Fiber 结点

@@ -1,7 +1,5 @@
-import { setNextUnitOfWork, workLoop } from "./concurrent" ;
+import { setWIPRoot, setNextUnitOfWork, workLoop } from "./concurrent" ;
 import { Fiber } from "./fiber";
-
-let wipRoot = null;
 
 export function render(elem, container) {
   /*
@@ -12,7 +10,7 @@ export function render(elem, container) {
     },
   }
   */
-  wipRoot = new Fiber({
+  const wipRoot = new Fiber({
     type: 'Root',
     props: {
       children: [elem]
@@ -20,6 +18,7 @@ export function render(elem, container) {
   }, null);
   wipRoot.dom = container;
 
+  setWIPRoot(wipRoot);
   setNextUnitOfWork(wipRoot);
   requestIdleCallback(workLoop);
 }
