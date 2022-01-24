@@ -83,3 +83,24 @@ function performUnitOfWork(fiber) {
     nextFiber = nextFiber.parent;
   }
 }
+
+export function render(elem, container) {
+  /*
+  wipRoot = {
+    dom: container,
+    props: {
+      children: [elem],
+    },
+  }
+  */
+  wipRoot = new Fiber({
+    type: 'Root',
+    props: {
+      children: [elem]
+    }
+  }, null);
+  wipRoot.dom = container;
+
+  nextUnitOfWork = wipRoot;
+  requestIdleCallback(workLoop);
+}

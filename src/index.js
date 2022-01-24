@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createElement } from './lib/createElement';
-import { render } from './lib/render';
+import { render } from './lib/concurrent';
 
 const PReact = {
   createElement,
