@@ -8,6 +8,8 @@ export class Fiber {
 
   dom = null 
 
+  alternate = null
+
   constructor(elem, parent) {
     this.type = elem.type;
     this.props = elem.props;

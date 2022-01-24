@@ -26,16 +26,50 @@ ReactDOM.render(
 */
 
 /** @jsx PReact.createElement */
-const App = (
+const app = (
   <div>
     <h1>title</h1>
-    <p>body</p>
+    <p id='1'>
+      <h3>
+        body1
+      </h3>
+      <h3>
+        body2
+      </h3>
+      <h3>
+        body3
+      </h3>
+    </p>
+  </div>
+)
+
+/** @jsx PReact.createElement */
+const app2 = (
+  <div>
+    <h1>title</h1>
+    <p id='2'>
+      <h4>
+        body4
+      </h4>
+      <h3>
+        body5
+      </h3>
+    </p>
   </div>
 )
 
 PReact.render(
-  App,
+  app,
   document.getElementById('root')
 );
+/*
+*/
+
+setTimeout(() => {
+  PReact.render(
+    app2,
+    document.getElementById('root')
+  );
+}, 5000);
 /*
 */
