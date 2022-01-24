@@ -1,3 +1,4 @@
+
 function isFunctionComponent(p) {
   return Object.prototype.toString.call(p).indexOf('Function') >= 0;
 }
