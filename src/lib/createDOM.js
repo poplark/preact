@@ -18,4 +18,17 @@ export function createDOM(fiber) {
   elem.node = node;
   container.appendChild(elem.node);
   */
+  let node;
+  if (fiber.type === 'TEXT_ELEMENT') {
+    node = document.createTextNode('');
+  } else {
+    node = document.createElement(fiber.type);
+  }
+  const isProperty = key => key !== "children"
+  Object.keys(fiber.props)
+    .filter(isProperty)
+    .forEach((key) => {
+      node[key] = fiber.props[key];
+    });
+  return node;
 }

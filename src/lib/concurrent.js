@@ -12,7 +12,7 @@ export function workLoop(deadline) {
   while(nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
 
-    if (deadline.timeRemain < 1) {
+    if (deadline.timeRemaining() < 1) {
       shouldYield = true;
     }
   }
@@ -44,7 +44,7 @@ function performUnitOfWork(fiber) {
   while (index < children.length) {
     const _fiber = new Fiber(children[index], fiber);
     if (index === 0) {
-      fiber.children = _fiber;
+      fiber.child = _fiber;
     } else {
       prevSibling.sibling = _fiber;
     }
