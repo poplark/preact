@@ -21,6 +21,7 @@ class Instance {
 class CompositeInstance extends Instance {
   componentInstance = null;
   childElement = null;
+  childInstance = null;
 
   getPublicInstance() {
     return this.componentInstance;
@@ -42,12 +43,19 @@ class CompositeInstance extends Instance {
     } else if (isFunctionComponent(type)) {
       this.childElement = type(props);
     }
-    // todo - 不需要记录子实例么??
-    return createInstance(this.childElement).mount();
+    this.childInstance = createInstance(this.childElement)
+    return this.childInstance.mount();
   }
 
 
   receive(element) {
+    if (this.childElement.type !== element.type) {
+      // 替换
+
+    } else {
+      this.childInstance.receive();
+    }
+    // todo - element 为 空 呢？？
   }
 }
 
@@ -83,7 +91,100 @@ class HostInstance extends Instance {
   }
 
   receive(element) {
+    const { type, props } = element;
+    const previousElement = this.element;
+    const previousNode = this.node;
+    this.element = element;
+
+    // todo - 如果 type 为 CompositeComponent 了呢????
+    if (type !== previousElement.type) {
+      // 不同类型，直接 replace
+      const newInstance = createInstance(element);
+      this.node = newInstance.mount();
+      previousNode.parentNode.replace(this.node, previousNode);
+    } else {
+      // 特别的，TEXT_ELEMENT 时，只需要更新 nodeValue
+      if (type === 'TEXT_ELEMENT') {
+        previousNode['nodeValue'] = props['nodeValue'];
+        return;
+      }
+      // 相同类型，更新 props
+      const previousProps = previousElement.props;
+      Object.keys(previousProps)
+        .filter((key) => key !== 'children')
+        .forEach((key) => {
+          previousNode.removeAttribute(key);
+        });
+      Object.keys(props)
+        .filter((key) => key !== 'children')
+        .forEach((key) => {
+          previousNode.setAttribute(key, props[key]);
+        });
+      // 处理 children
+      reconcilerChildren(this, element.props.children);
+    }
   }
+}
+
+function reconcilerChildren(instance, childElements) {
+  const childInstances = instance.childInstances;
+  const operations = [];
+  childElements.forEach((childElement, idx) => {
+    const childInstance = childInstances[idx];
+    if (childInstance) {
+      if (childInstance.element.type !== childElement.type) {
+        operations.push({
+          tag: 'replace',
+          instance: childInstance,
+          element: childElement,
+        })
+      } else {
+        operations.push({
+          tag: 'update',
+          instance: childInstance,
+          element: childElement,
+        })
+      }
+    } else {
+      operations.push({
+        tag: 'add',
+        element: childElement,
+      })
+    }
+  })
+  for (let i = childElements.length; i < childInstances.length; i++) {
+    operations.push({
+      tag: 'remove',
+      instance: childInstances[i],
+    })
+  }
+  instance.childInstances = [];
+  operations.forEach((operation) => {
+    switch (operation.tag) {
+      case 'add':
+        const newChildInstance = createInstance(operation.element);
+        instance.childInstances.push(newChildInstance);
+        instance.node.appendChild(newChildInstance.mount());
+        break;
+      case 'update':
+        const childInstance = operation.instance;
+        childInstance.receive(operation.element);
+        instance.childInstances.push(childInstance);
+        break;
+      case 'replace':
+        const previousChildInstance = operation.instance;
+        const currentChildInstance = createInstance(operation.element);
+        instance.childInstances.push(currentChildInstance);
+        instance.node.replaceChild(currentChildInstance.mount(), previousChildInstance.node); // previousChildInstance 是组合实例呢？？？
+        break;
+      case 'remove':
+        const removeChildInstance = operation.instance;
+        instance.node.removeChild(removeChildInstance.node); // 同样的，removeChildInstance 是组合实例怎么办???
+        break;
+      default:
+        break;
+    }
+  });
 }
 
 function createNode(type, props) {
