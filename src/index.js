@@ -45,10 +45,18 @@ const app = (
   </div>
 )
 
+function P() {
+  /** @jsx PReact.createElement */
+  return (
+    <p>
+      <h3>foot</h3>
+    </p>
+  )
+}
 /** @jsx PReact.createElement */
 const app2 = (
   <div>
-    <h1>title</h1>
+    <h1>title2</h1>
     <p id='2'>
       <h4>
         body4
@@ -57,6 +65,7 @@ const app2 = (
         body5
       </h3>
     </p>
+    <P/>
   </div>
 )
 
