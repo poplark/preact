@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 // import { render } from './lib/concurrent';
 import { createElement } from './stack/createElement';
 import { render } from './stack/reconciler';
+import { Component } from './stack/component';
 
 const PReact = {
   createElement,
@@ -49,9 +50,20 @@ function P() {
   /** @jsx PReact.createElement */
   return (
     <p>
-      <h3>foot</h3>
+      <h3>function foot</h3>
     </p>
   )
+}
+
+class X extends Component {
+  render() {
+    /** @jsx PReact.createElement */
+    return (
+      <p>
+        <h3>class foot</h3>
+      </p>
+    )
+  }
 }
 /** @jsx PReact.createElement */
 const app2 = (
@@ -66,6 +78,7 @@ const app2 = (
       </h3>
     </p>
     <P/>
+    <X/>
   </div>
 )
 
