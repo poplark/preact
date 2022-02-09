@@ -36,6 +36,7 @@ class CompositeInstance extends Instance {
     const { type, props } = this.element;
     if (isClassComponent(type)) {
       this.componentInstance = new type(props);
+      this.componentInstance.host = this;
       if (this.componentInstance.componentWillMount) {
         this.componentInstance.componentWillMount();
       }
